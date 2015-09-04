@@ -40,11 +40,11 @@ end
 def generate_question(first_no, second_no, player, operation)
   case operation
   when 'add'
-    "\n#{player == 1 ? @player1_name : @player2_name}'s turn: What does #{first_no} plus #{second_no} equal?"
+    "\n#{player_name(player)}'s turn: What does #{first_no} plus #{second_no} equal?"
   when 'subtract'
-    "\n#{player == 1 ? @player1_name : @player2_name}'s turn: What does #{first_no} minus #{second_no} equal?"
+    "\n#{player_name(player)}'s turn: What does #{first_no} minus #{second_no} equal?"
   when 'multiply'
-    "\n#{player == 1 ? @player1_name : @player2_name}'s turn: What does #{first_no} times #{second_no} equal?"
+    "\n#{player_name(player)}'s turn: What does #{first_no} times #{second_no} equal?"
   end
 end
 
