@@ -133,7 +133,7 @@ end
 def print_current_game_status(no_of_lives, player)
   if no_of_lives == 0
     puts end_of_game(player)
-    player ==1 ? @player2_wins += 1 : @player1_wins +=1
+    gain_a_point(player)
     puts current_score
     puts prompt_for_replay
   else
@@ -168,7 +168,11 @@ end
 
 # Decreases a player's no. of lives based on player's number (1 or 2)
 def decrease_no_of_lives(player)
-  player == 1 ? @player1_lives = @player1_lives -1 : @player2_lives = @player2_lives -1
+  player == 1 ? @player1_lives -= 1 : @player2_lives -= 1
+end
+
+def gain_a_point(player)
+  player ==1 ? @player2_wins += 1 : @player1_wins +=1
 end
 
 # Runs a player's turn
