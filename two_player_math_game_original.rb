@@ -1,196 +1,147 @@
 require 'colorize'
 
-@player1_lives = 0
-@player2_lives = 0
-@player1_name = ""
-@player2_name = ""
-@player1_wins = 0
-@player2_wins = 0
-@replay_wanted = 'yes'
+class Player
 
-# Main method that starts game
-def main
-  ask_for_players_names
-  while @replay_wanted == 'yes'
-    run_game
+  attr_accessor :name, :lives
+  attr_reader :points
+
+  def initialize(name)
+    @name = name
+    @lives = 3
+    @points = 0
   end
-end
 
-# Runs a set of turns until one of the player loses all lives
-def run_game
-  @player1_lives = 3
-  @player2_lives = 3
-
-  while @player1_lives > 0 && @player2_lives > 0
-    player_turn(1)
-    break if @player1_lives == 0
-    player_turn(2)
+  # Simulates a player's turn, and returns the number of lives left after the turn is over
+  def turn
+    question = MathQuestion.new
+    print "#{@name}'s turn:' #{question.print} \nYour answer: "
+    player_answer = gets.chomp.to_i
+    if player_answer == question.result
+      puts "#{print_answer(true)} #{@name} has #{@lives} lives left."
+      @lives
+    else
+      lose_a_life
+      puts "#{print_answer(false)} #{@name} has #{@lives} lives left."
+      @lives
+    end
   end
-end
 
-# Asks for player's names and saves them in the instance variables
-def ask_for_players_names
-  print "Player 1's name is: "
-  @player1_name = gets.chomp
-  print"Player 2's name is: "
-  @player2_name = gets.chomp
-end
-
-# Takes in 2 numbers, player's number, and an operation, and returns the generated question
-def generate_question(first_no, second_no, player, operation)
-  case operation
-  when 'add'
-    "\n#{player_name(player)}'s turn: What does #{first_no} plus #{second_no} equal?"
-  when 'subtract'
-    "\n#{player_name(player)}'s turn: What does #{first_no} minus #{second_no} equal?"
-  when 'multiply'
-    "\n#{player_name(player)}'s turn: What does #{first_no} times #{second_no} equal?"
+  # Takes in a boolean and prints green/correct message if true and red/incorrect message if false
+  def print_answer(bool)
+    if bool == true
+      'Correct! :-) '.colorize(:green)
+    else
+      'Incorrect! :-( '.colorize(:red)
+    end
   end
-end
 
-# Generates random operation and returns a string ('add', 'subtract', 'multiply')
-def generate_random_operation
-  r = rand(1..3)
-  case r
-  when 1
-    'add'
-  when 2
-    'subtract'
-  when 3
-    'multiply'
+  # Decreases number of lives by 1 and returns the result
+  def lose_a_life
+    @lives -= 1
   end
-end
 
-# Generates random number smaller than 20
-def generate_random_num
-  rand(1..20)
-end
-
-# Adds 2 numbers and returns result
-def add(a, b)
-  a + b
-end
-
-# Subtracts 2 numbers and returns result
-def subtract(a, b)
-  a - b
-end
-
-# Multiplies 2 numbers and returns result
-def multiply(a, b)
-  a * b
-end
-
-# Prompts player for answer and returns its output
-def prompt_player_for_answer
-  print 'Your answer:'
-  user_input = gets.chomp.to_i
-end
-
-# Takes in the player input and returns true if answer is correct or false if incorrect
-def correct_answer?(a, b, player_input, operation)
-  case operation
-  when 'add'
-    result = add(a,b)
-  when 'subtract'
-    result = subtract(a,b)
-  when 'multiply'
-    result = multiply(a,b)
+  # Increases player's number of points by one and returns the result
+  def gain_a_point
+    @points += 1
   end
-  player_input == result
-end
 
-# Prompts user for option to play again; returns goodbye messages if option is no or unrecognized string; returns nil if option is yes
-def prompt_for_replay
-  puts 'Want to play again? (yes/no)'
-  @replay_wanted = gets.chomp
-  if @replay_wanted == 'yes'
-    return nil
-  elsif @replay_wanted == 'no'
-    return  'Bye bye!'
-  else
-    @replay_wanted = 'no'
-    return 'Didn\'t get that. So bye bye!'
+  # Resets number of lives to 3
+  def reset_lives
+    @lives = 3
   end
+
 end
 
-# Returns player's name based on player's number (1 or 2)
-def player_name(player)
-  player == 1 ? @player1_name : @player2_name
-end
 
-# Returns player's lives based on player's number (1 or 2)
-def player_lives(player)
-  player == 1 ? @player1_lives : @player2_lives
-end
+class MathQuestion
 
-# Returns other player's name based on player's number (1 or 2)
-def other_player_name(player)
-  player == 1 ? @player2_name : @player1_name
-end
+  attr_reader :first_no, :second_no, :operation
 
-# Prints  number of lives left after each answer (or who won the game if after a final turn)
-def print_current_game_status(no_of_lives, player)
-  if no_of_lives == 0
-    puts end_of_game(player)
-    gain_a_point(player)
-    puts current_score
-    puts prompt_for_replay
-  else
-    puts player_lives_status(player, no_of_lives)
+  def initialize
+    @first_no = rand(1..20)
+    @second_no = rand(1..20)
+    @operation = ['plus', 'minus','times'].sample
   end
-end
 
-# Returns message announcing end of game and winner; takes the losing player's number
-def end_of_game (player)
-  "#{player_name(player)} is out of lives! #{other_player_name(player)} won!"
-end
-
-# Returns message with current score
-def current_score
-  "Current score: #{@player1_name}: #{@player1_wins} and #{@player2_name}: #{@player2_wins}."
-end
-
-# Takes player's number and lives and returns message with player's name and status of lives
-def player_lives_status(player, no_of_lives)
-  "#{player_name(player)} has #{no_of_lives} lives left.\n"
-end
-
-# Prints green colored message acknowledging correct answer
-def answer_is_correct
-  'Correct! :-) '.colorize(:green)
-end
-
-# Prints red colored message acknowledging incorrect answer
-def answer_is_incorrect
-  'Incorrect! :-( '.colorize(:red)
-end
-
-# Decreases a player's no. of lives based on player's number (1 or 2)
-def decrease_no_of_lives(player)
-  player == 1 ? @player1_lives -= 1 : @player2_lives -= 1
-end
-
-def gain_a_point(player)
-  player ==1 ? @player2_wins += 1 : @player1_wins +=1
-end
-
-# Runs a player's turn
-# Starts with generating the 2 random numbers and a random operation, then gets player's answer
-# Verifies answer, updates number of lives, and prints game status
-def player_turn(player)
-  first_no = generate_random_num
-  second_no = generate_random_num
-  operation = generate_random_operation
-  puts generate_question(first_no, second_no, player, operation)
-  player_input = prompt_player_for_answer
-  if correct_answer?(first_no, second_no, player_input,operation)
-    print answer_is_correct
-  else
-    print answer_is_incorrect
-    decrease_no_of_lives(player)
+  # Generate string with math question
+  def print
+    "What does #{@first_no} #{@operation} #{@second_no} equal?"
   end
-  print_current_game_status(player_lives(player), player)
+
+  # Returns correct result of an operation
+  def result
+    case @operation
+    when 'plus'
+      @first_no + @second_no
+    when 'minus'
+      @first_no - @second_no
+    when 'times'
+      @first_no * @second_no
+    end
+  end
+
 end
 
-main
+class Game
+
+  def initialize
+    @replay_wanted = ''
+  end
+
+  # Gets player's names and creates Player instances
+  def get_players_names
+    print "Player 1's name is: "
+    @player1 = Player.new(gets.chomp)
+    print"Player 2's name is: "
+    @player2 = Player.new(gets.chomp)
+  end
+
+  # Runs a round of the game; stops when a player loses all 3 lives; updates score for winner; prints score; resets lives for a new possilble round
+  def run_a_game_round
+    while @player1.lives > 0 && @player2.lives > 0
+      @player1.turn
+      break if @player1.lives == 0
+      @player2.turn
+    end
+    winner.gain_a_point
+    puts show_score
+    @player1.reset_lives
+    @player2.reset_lives
+  end
+
+  # Returns the player who won the round
+  def winner
+    @player1.lives > @player2.lives ? @player1 : @player2
+  end
+
+  # Generates string with result of a game round and current score
+  def show_score
+    "#{winner.name} won!. Current score: #{@player1.name} #{@player1.points} - #{@player2.name} #{@player2.points}."
+  end
+
+  # Prompts user for option to play again; returns goodbye messages if option is no or unrecognized string; returns nil if option is yes
+  def prompt_for_replay
+    puts 'Want to play again? (yes/no)'
+    @replay_wanted = gets.chomp
+    if @replay_wanted == 'yes'
+      return nil
+    elsif @replay_wanted == 'no'
+      return  'Bye bye!'
+    else
+      @replay_wanted = 'no'
+      return 'Didn\'t get that. So bye bye!'
+    end
+  end
+
+  # Starts a game; prompts for player names and starts game round while players want replay
+  def start_game
+    get_players_names
+    while @replay_wanted != 'no'
+      run_a_game_round
+      puts prompt_for_replay
+    end
+  end
+
+end
+
+Game.new.start_game
