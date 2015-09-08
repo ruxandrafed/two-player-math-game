@@ -19,7 +19,7 @@ class Player
     question = MathQuestion.new
     print "#{@name}'s turn:' #{question.print} \nYour answer: "
     player_answer = gets.chomp.to_i
-    if player_answer == 0
+    while player_answer == 0
       begin
         raise InvalidGuessError
       rescue InvalidGuessError
@@ -113,12 +113,12 @@ class Game
 
   # Checks that player's names aren't empty
   def validate_player_name(player, input)
-    if input.empty?
+    while input.empty?
       begin
         raise InvalidPlayerNameError
       rescue InvalidPlayerNameError
         puts "You didn't type your name, please try again!"
-        print "Player #{player}'s name:'"
+        print "Player #{player}'s name:"
         @player1_name = gets.chomp
       end
     end
