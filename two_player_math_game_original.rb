@@ -1,5 +1,8 @@
 require 'colorize'
 
+class InvalidGuessError < StandardError; end
+class InvalidPlayerNameError < StandardError; end
+
 class Player
 
   attr_accessor :name, :lives
@@ -16,6 +19,16 @@ class Player
     question = MathQuestion.new
     print "#{@name}'s turn:' #{question.print} \nYour answer: "
     player_answer = gets.chomp.to_i
+    if player_answer == 0
+      begin
+        raise InvalidGuessError
+      rescue InvalidGuessError
+        puts "Invalid input, please try again!"
+        print 'Your answer:'
+        user_input = gets.chomp.to_i
+      end
+    end
+
     if player_answer == question.result
       puts "#{print_answer(true)} #{@name} has #{@lives} lives left."
       @lives
@@ -92,8 +105,23 @@ class Game
   def get_players_names
     print "Player 1's name is: "
     @player1 = Player.new(gets.chomp)
+    validate_player_name(1, @player1.name)
     print"Player 2's name is: "
     @player2 = Player.new(gets.chomp)
+    validate_player_name(2, @player2.name)
+  end
+
+  # Checks that player's names aren't empty
+  def validate_player_name(player, input)
+    if input.empty?
+      begin
+        raise InvalidPlayerNameError
+      rescue InvalidPlayerNameError
+        puts "You didn't type your name, please try again!"
+        print "Player #{player}'s name:'"
+        @player1_name = gets.chomp
+      end
+    end
   end
 
   # Runs a round of the game; stops when a player loses all 3 lives; updates score for winner; prints score; resets lives for a new possilble round
