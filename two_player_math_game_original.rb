@@ -25,7 +25,7 @@ class Player
       rescue InvalidGuessError
         puts "Invalid input, please try again!"
         print 'Your answer:'
-        user_input = gets.chomp.to_i
+        player_answer = gets.chomp.to_i
       end
     end
 
@@ -119,7 +119,8 @@ class Game
       rescue InvalidPlayerNameError
         puts "You didn't type your name, please try again!"
         print "Player #{player}'s name:"
-        @player1_name = gets.chomp
+        input = gets.chomp
+        player ==1 ? @player1.name = input : @player2.name = input
       end
     end
   end
